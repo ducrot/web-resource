@@ -9,6 +9,11 @@ use TS\Web\Resource\Exception\LogicException;
 
 
 /**
+ * Extends Symfony's Response class to handle streaming resources with:
+ * - HTTP range request support (206 Partial Content)
+ * - Auto-generated ETags and Last-Modified headers
+ * - Content-Disposition header handling
+ * - Stream-based content delivery
  *
  * @author Timo Stamm <ts@timostamm.de>
  * @license AGPLv3.0 https://www.gnu.org/licenses/agpl-3.0.txt
@@ -38,8 +43,8 @@ class ResourceResponse extends Response
 		}
 	}
 
-	public function setResource(ResourceInterface $resource, $contentDisposition = null, $autoEtag = false, $autoLastModified = true)
-	{
+	public function setResource(ResourceInterface $resource, $contentDisposition = null, $autoEtag = false, $autoLastModified = true): void
+    {
 		
 		$this->resource = $resource;
 		
@@ -61,14 +66,14 @@ class ResourceResponse extends Response
     /**
      * @return ResourceInterface
      */
-    public function getResource()
+    public function getResource(): ResourceInterface
     {
         return $this->resource;
     }
 
 
-	public function setAutoLastModified()
-	{
+	public function setAutoLastModified(): static
+    {
 	    $in = $this->resource->getLastModified();
 	    if ($in instanceof \DateTimeImmutable) {
 	        $date = new \DateTime();
@@ -80,14 +85,14 @@ class ResourceResponse extends Response
 		return $this;
 	}
 
-	public function setAutoEtag()
-	{
+	public function setAutoEtag(): static
+    {
 		$this->setEtag($this->resource->getHash());
 		return $this;
 	}
 
-	public function setContentDisposition($disposition)
-	{
+	public function setContentDisposition($disposition): static
+    {
 		$filename = $this->resource->getFilename();
 		
 		$filenameFallback = '';
@@ -116,8 +121,8 @@ class ResourceResponse extends Response
 	 *
 	 * {@inheritdoc}
 	 */
-	public function prepare(Request $request)
-	{
+	public function prepare(Request $request): static
+    {
 		$this->headers->set('Content-Length', $this->resource->getLength());
 		
 		if (! $this->headers->has('Accept-Ranges')) {
@@ -192,8 +197,8 @@ class ResourceResponse extends Response
 	 *
 	 * {@inheritdoc}
 	 */
-	public function sendContent()
-	{
+	public function sendContent(): static
+    {
 		if (! $this->isSuccessful()) {
 			return parent::sendContent();
 		}
@@ -219,21 +224,20 @@ class ResourceResponse extends Response
 	 *
 	 * @throws \LogicException when the content is not null
 	 */
-	public function setContent($content)
-	{
+	public function setContent($content): static
+    {
 		if (null !== $content) {
 			throw new LogicException('The content cannot be set on a ResourceResponse instance.');
 		}
+        return $this;
 	}
 
 	/**
 	 *
 	 * {@inheritdoc}
-	 *
-	 * @return false
 	 */
-	public function getContent()
-	{
+	public function getContent(): false|string
+    {
 		return false;
 	}
 
