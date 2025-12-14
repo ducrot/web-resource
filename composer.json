@@ -4,10 +4,11 @@
 	"type" : "library",
 	"license" : "AGPL-3.0-or-later",
 	"require" : {
+        "ext-curl": "*",
 		"php": "^8.0",
 		"symfony/http-foundation" : "^5.4 || ^6.4",
 		"symfony/mime": "^5.4 || ^6.4"
-	},
+    },
 	"require-dev" : {
 		"ext-zip": "*",
 		"phpunit/phpunit" : "^9.6.20",
